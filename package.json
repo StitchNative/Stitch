@@ -32,7 +32,7 @@
     "immediate-mode"
   ],
   "author": "Stitch Contributors",
-  "license": "ISC",
+  "license": "MIT",
   "files": [
     "src",
     "README.md",
