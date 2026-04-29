@@ -1,16 +1,41 @@
 {
   "name": "stitch",
   "version": "1.0.0",
-  "description": "",
+  "description": "A terminal-native UI engine utilizing bit-packed memory and an immediate-mode architecture.",
+  "type": "module",
   "main": "./src/stitch.js",
   "exports": {
     ".": "./src/stitch.js"
   },
-  "scripts": {
-    "test": "node --test tests/*.test.js"
+  "engines": {
+    "node": ">=20.0.0"
   },
-  "keywords": [],
-  "author": "",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:watch": "node --test --watch tests/*.test.js",
+    "test:coverage": "node --experimental-test-coverage --test tests/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StitchNative/Stitch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/StitchNative/Stitch/issues"
+  },
+  "homepage": "https://github.com/StitchNative/Stitch#readme",
+  "keywords": [
+    "terminal",
+    "ui",
+    "tui",
+    "vram",
+    "bit-packed",
+    "immediate-mode"
+  ],
+  "author": "Stitch Contributors",
   "license": "ISC",
-  "type": "module"
+  "files": [
+    "src",
+    "README.md",
+    "CONTRIBUTING.md"
+  ]
 }
