@@ -58,3 +58,25 @@ test('diffing logic - empty cell as space', () => {
   assert.strictEqual(driver.output.includes(' '), true);
   assert.strictEqual(driver.output.includes('\0'), false);
 });
+
+import Engine from '../src/core/engine.js';
+
+test('Engine orchestration', () => {
+  const engine = new Engine();
+  
+  // Mock driver to avoid real TTY output
+  const mockDriver = {
+    buffer: [],
+    write(s) { this.buffer.push(s); },
+    flush() {}
+  };
+  engine.driver = mockDriver;
+
+  engine.render((vram) => {
+    vram.setCell(0, 0, 88, 7, 0, 0); // 'X'
+  });
+
+  const output = mockDriver.buffer.join('');
+  assert.match(output, /X/);
+  assert.strictEqual(engine.vram.frontBuffer[0], engine.vram.backBuffer[0]);
+});

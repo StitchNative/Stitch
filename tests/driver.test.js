@@ -22,3 +22,55 @@ test('sgr sequence', () => {
 test('RESET constant', () => {
   assert.strictEqual(RESET, '\x1b[0m');
 });
+
+import StdoutDriver from '../src/driver/stdout.js';
+
+test('StdoutDriver buffering', () => {
+  const mockStream = {
+    content: '',
+    write(str) { this.content += str; }
+  };
+  const driver = new StdoutDriver();
+  driver.stream = mockStream;
+
+  driver.write('hello');
+  driver.write(' ');
+  driver.write('world');
+  
+  assert.strictEqual(mockStream.content, ''); // Should be buffered
+  driver.flush();
+  assert.strictEqual(mockStream.content, 'hello world');
+});
+
+test('StdoutDriver auto-flush', () => {
+  const mockStream = {
+    count: 0,
+    write() { this.count++; }
+  };
+  const driver = new StdoutDriver();
+  driver.stream = mockStream;
+
+  const largeStr = 'a'.repeat(16385);
+  driver.write(largeStr);
+  
+  assert.strictEqual(mockStream.count, 1); // Should have auto-flushed
+});
+
+test('StdoutDriver aggregate auto-flush', () => {
+  const mockStream = {
+    count: 0,
+    write() { this.count++; }
+  };
+  const driver = new StdoutDriver();
+  driver.stream = mockStream;
+
+  // 16 small writes of 1024 chars = 16384 chars (no flush yet)
+  for (let i = 0; i < 16; i++) {
+    driver.write('a'.repeat(1024));
+  }
+  assert.strictEqual(mockStream.count, 0);
+
+  // One more char to cross 16384
+  driver.write('b');
+  assert.strictEqual(mockStream.count, 1);
+});

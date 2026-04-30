@@ -26,6 +26,18 @@ test('Reconciler stable hashing', () => {
   assert.notStrictEqual(ptr1, ptr3);
 });
 
+test('Reconciler collision resistance', () => {
+  const arena = new Arena();
+  const rec = new Reconciler(arena);
+  
+  // These should NOT collide despite having values that XOR to the same result
+  // If they collide, the reconciler is using a weak hashing strategy.
+  const ptrA = rec.claim('A', 1, 0, null);
+  const ptrB = rec.claim('B', 0, 2, null);
+  
+  assert.notStrictEqual(ptrA, ptrB, 'Reconciler should not have collisions for different component paths');
+});
+
 test('Hook state and epoch validation', () => {
   const arena = new Arena();
   const rec = new Reconciler(arena);
@@ -57,4 +69,32 @@ test('Memory safety (free)', () => {
   
   arena.free(ptr);
   assert.strictEqual(arena.refs[ptr], null);
+});
+
+import { useEffect } from '../src/kernel/hooks.js';
+
+test('useEffect dependency tracking', () => {
+  const arena = new Arena();
+  const rec = new Reconciler(arena);
+  bindHooks(rec);
+
+  const ptr = rec.claim('Test', 0, 0, null);
+  rec.enter(ptr);
+
+  let count = 0;
+  const effect = () => { count++; };
+
+  // First run
+  useEffect(effect, [1]);
+  assert.strictEqual(count, 1);
+
+  // Second run with same deps
+  rec.hookCursor = 0; // Reset cursor for re-render
+  useEffect(effect, [1]);
+  assert.strictEqual(count, 1); // Should NOT run
+
+  // Third run with different deps
+  rec.hookCursor = 0;
+  useEffect(effect, [2]);
+  assert.strictEqual(count, 2); // SHOULD run
 });

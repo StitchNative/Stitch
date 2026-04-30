@@ -62,3 +62,36 @@ test('VRAM swap', () => {
   vram.swap();
   assert.strictEqual(vram.frontBuffer[2 * 10 + 5], vram.backBuffer[2 * 10 + 5]);
 });
+
+test('VRAM composition', () => {
+  const target = new VRAM(10, 10);
+  const layer1 = new VRAM(10, 10); // Bottom
+  const layer2 = new VRAM(10, 10); // Top
+
+  layer1.setCell(0, 0, 65, 1, 0, 0); // 'A'
+  layer2.setCell(0, 0, 66, 2, 0, 0); // 'B' (should win)
+  layer1.setCell(1, 1, 67, 3, 0, 0); // 'C' (should remain as layer2 is empty here)
+
+  target.compose([layer1, layer2]);
+
+  const cell00 = unpack(target.getCell(0, 0));
+  const cell11 = unpack(target.getCell(1, 1));
+
+  assert.strictEqual(cell00.char, 66);
+  assert.strictEqual(cell00.fg, 2);
+  assert.strictEqual(cell11.char, 67);
+  assert.strictEqual(cell11.fg, 3);
+});
+
+test('VRAM out-of-bounds', () => {
+  const vram = new VRAM(10, 10);
+  
+  // Should not throw
+  vram.setCell(-1, 0, 65, 1, 0, 0);
+  vram.setCell(10, 0, 65, 1, 0, 0);
+  vram.setCell(0, -1, 65, 1, 0, 0);
+  vram.setCell(0, 10, 65, 1, 0, 0);
+  
+  assert.strictEqual(vram.getCell(-1, 0), 0);
+  assert.strictEqual(vram.getCell(10, 0), 0);
+});
