@@ -38,7 +38,13 @@ class Reconciler {
   claim(name, depth, siblingIndex, key) {
     const nameHash = this.hash(name) | 0;
     const keyHash = (key ? this.hash(String(key)) : 0) | 0;
-    const id = (nameHash ^ (depth | 0) ^ (siblingIndex | 0) ^ keyHash) | 0;
+    
+    // Better identity combining to avoid simple XOR collisions
+    // Uses prime multipliers to separate dimensions
+    let id = nameHash | 0;
+    id = (Math.imul(id, 31) + (depth | 0)) | 0;
+    id = (Math.imul(id, 31) + (siblingIndex | 0)) | 0;
+    id = (Math.imul(id, 31) + keyHash) | 0;
 
     let ptr = this.hashSlots.get(id);
     if (ptr === undefined) {
