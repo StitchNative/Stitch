@@ -1,74 +1,67 @@
 # Contributing to Stitch
 
-Thank you for your interest in contributing to Stitch! We maintain high engineering standards to ensure the engine remains lean, predictable, and performant.
+Stitch maintains high engineering standards to ensure the engine remains predictable, performant, and maintainable. All contributors must adhere to these guidelines.
 
-## Code of Conduct
-By participating in this project, you agree to maintain a professional and respectful environment.
+## Technical Writing Standards
 
-## How to Contribute
+All project communications—including documentation, code comments, and commit messages—must use **Objective Technical Language**. Precision is prioritized; avoid casual, subjective, or hyperbolic terminology.
 
-### Reporting Bugs
-- Check the [Issue Tracker](https://github.com/StitchNative/Stitch/issues) for existing reports.
-- Use a clear, descriptive title.
-- Provide a minimal reproduction script if possible.
-- Include your environment details (Node.js version, OS, Terminal emulator).
+### 1. Style Guidelines
+- **Eliminate Hyperbole:** Avoid words such as "fast", "blazing", "amazing", or "awesome". Instead, describe the technical mechanism (e.g., "O(1) lookup", "minimized I/O").
+- **Remove Subjectivity:** Avoid qualifiers like "basically", "actually", "just", "simple", or "easy". 
+- **Use Literal Terms:** Prefer descriptions of physical or mathematical reality (e.g., "SMI-optimized", "bit-packed", "zero-allocation").
 
-### Suggesting Enhancements
-- Open an issue to discuss the change before implementation.
-- Explain the use case and the expected performance impact.
-
-### Pull Request Process
-1. Fork the repository and create your branch from `main`.
-2. Ensure the code adheres to our [Engineering Standards](#engineering-standards).
-3. Add or update tests for any new logic.
-4. Verify all tests pass: `npm test`.
-5. Use concise, imperative commit messages following our [Commit Convention](#commit-message-convention).
-6. Submit your PR and await review.
-
-### Commit Message Convention
-We use a structured commit format to keep history readable. Every commit must follow the pattern: `type(scope): description`.
-
-**Types:**
-- `feat`: A new feature or capability.
-- `fix`: A bug fix.
-- `docs`: Documentation only changes.
-- `test`: Adding missing tests or correcting existing tests.
-- `perf`: A code change that improves performance.
-- `refactor`: A code change that neither fixes a bug nor adds a feature.
-- `chore`: Updating build tasks, configurations, or dependencies.
-
-**Mandatory Scopes:**
-A scope must be provided to specify the module being changed. Acceptable scopes are:
-- `core`: Engine orchestrator and diffing logic.
-- `vram`: Bit-packed memory and buffer management.
-- `driver`: Terminal I/O and ANSI sequence generation.
-- `layout`: Mathematical constraints and positioning.
-- `kernel`: Component identity and hooks-based state.
-- `build`: Build scripts, dependencies, or configuration.
-- `repo`: Global documentation or project-wide metadata.
-
-**Example:** `feat(kernel): add support for async hooks`
+### 2. Documentation Rules
+- **Rationale Over Action:** Comments must clarify *why* a decision was made. The code itself should clearly express *what* is happening.
 
 ## Engineering Standards
 
-To maintain V8 JIT friendliness and zero-cost abstractions, all code must follow these strict rules:
-
 ### 1. Performance & Memory
-- **Zero Allocations:** Avoid creating objects (`{}`, `[]`, `new`) or string concatenations in hot paths (render/diff cycles).
-- **TypedArrays:** Use `Uint32Array` for all grid and memory-intensive data.
-- **Monomorphic Logic:** Keep object shapes consistent to prevent V8 "Hidden Class" transitions.
+- **Zero Allocations:** Avoid object/array creation and string concatenation in render/diff cycles.
+- **TypedArrays:** Utilize `Uint32Array` or `Int32Array` for all grid and memory-intensive data.
+- **Monomorphic Logic:** Maintain consistent object shapes to optimize V8 hidden class transitions.
 
 ### 2. Mathematical Integrity
-- **Strict Integer Math:** All layout and rendering logic must use 32-bit integer math. Coerce all calculations using bitwise OR (`| 0`).
+- **Strict Integer Math:** Coerce all layout and rendering calculations to 32-bit integers using bitwise OR (`| 0`).
   ```javascript
-  const offset = ((total - margin) / 2) | 0;
+  const offset = (total >> 1) | 0;
   ```
 
-### 3. Code Style
-- **Strict Mode:** Every file MUST start with `'use strict';`.
-- **Modularity:** Keep a strict separation between `vram`, `driver`, `core`, `layout`, and `kernel`.
-- **Naming:** Use descriptive, technical names. Avoid marketing language or hyperbole.
+## Commit Message Protocol
 
-### 4. Testing
-- Every module must have a corresponding `.test.js` file in the `tests/` directory.
-- We use the native `node:test` runner.
+Commit messages are a permanent technical record. They must follow the three-part structure and adhere strictly to the **Technical Writing Standards** (no casual language, hyperbole, or filler sentences).
+
+### Required Format:
+```text
+type(scope): concise summary (imperative mood)
+
+CHANGES:
+- Technical list of modifications.
+
+RATIONALE:
+- Mathematical or architectural reason for the change.
+- Comparison of previous vs. new state.
+
+IMPROVEMENTS:
+- Specific gains in performance, reliability, or stability.
+- Quantifiable metrics (e.g., "reduced memory footprint by 40%").
+```
+
+### Commit Types:
+- `feat`: A new capability.
+- `fix`: A bug fix.
+- `docs`: Documentation updates.
+- `perf`: Performance optimizations.
+- `refactor`: Structural changes without behavioral updates.
+- `test`: Adding or correcting tests.
+- `chore`: Maintenance tasks or dependency updates.
+
+### Mandatory Scopes:
+`core`, `vram`, `driver`, `layout`, `kernel`, `build`, `repo`.
+
+## Pull Request Process
+
+1. Fork the repository and create a branch from `main`.
+2. Ensure the code adheres to all standards.
+3. Verify all tests pass: `npm test`.
+4. Submit your PR with a detailed technical description.
